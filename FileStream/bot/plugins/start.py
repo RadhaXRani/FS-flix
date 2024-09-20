@@ -149,7 +149,7 @@ async def my_files(bot: Client, message: Message):
                               caption="Total files: {}".format(total_files),
                               reply_markup=InlineKeyboardMarkup(file_list))
 
-@FileStream.on_message(filters.command('server') & filters.private)
+@FileStream.on_message(filters.command('stats') & filters.private)
 async def check_server_status(bot, message: Message):
     # RAM usage
     ram = psutil.virtual_memory()
