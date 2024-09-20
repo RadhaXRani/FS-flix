@@ -1,5 +1,7 @@
 aiohttp
 pyrofork
+psutil
+speedtest-cli
 python-dotenv
 tgcrypto
 motor
