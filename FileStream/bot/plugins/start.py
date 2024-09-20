@@ -1,5 +1,8 @@
 import logging
 import math
+import psutil
+import time
+import speedtest
 from FileStream import __version__
 from FileStream.bot import FileStream
 from FileStream.server.exceptions import FIleNotFound
@@ -146,4 +149,43 @@ async def my_files(bot: Client, message: Message):
                               caption="Total files: {}".format(total_files),
                               reply_markup=InlineKeyboardMarkup(file_list))
 
+@FileStream.on_message(filters.command('server') & filters.private)
+async def check_server_status(bot, message: Message):
+    # RAM usage
+    ram = psutil.virtual_memory()
+    total_ram = round(ram.total / (1024 ** 3), 2)  # Convert to GB
+    used_ram = round(ram.used / (1024 ** 3), 2)    # Convert to GB
+    ram_percent = ram.percent
 
+    # Storage usage
+    disk = psutil.disk_usage('/')
+    total_disk = round(disk.total / (1024 ** 3), 2)  # Convert to GB
+    used_disk = round(disk.used / (1024 ** 3), 2)    # Convert to GB
+    disk_percent = disk.percent
+
+    # CPU usage
+    cpu_percent = psutil.cpu_percent(interval=1)
+
+    # Network speed test (download, upload, and ping)
+    try:
+        st = speedtest.Speedtest()
+        st.get_best_server()
+        download_speed = round(st.download() / (1024 ** 2), 2)  # Convert to Mbps
+        upload_speed = round(st.upload() / (1024 ** 2), 2)      # Convert to Mbps
+        ping = round(st.results.ping, 2)                        # Ping in ms
+    except Exception as e:
+        download_speed = upload_speed = ping = "Error"
+
+    # Format the response
+    response = (
+        f"**Server Status:**\n\n"
+        f"**RAM Usage:** {used_ram}/{total_ram} GB ({ram_percent}%)\n"
+        f"**Storage Usage:** {used_disk}/{total_disk} GB ({disk_percent}%)\n"
+        f"**CPU Usage:** {cpu_percent}%\n\n"
+        f"**Download Speed:** {download_speed} Mbps\n"
+        f"**Upload Speed:** {upload_speed} Mbps\n"
+        f"**Ping:** {ping} ms"
+    )
+
+    # Send the response
+    await message.reply_text(response)
