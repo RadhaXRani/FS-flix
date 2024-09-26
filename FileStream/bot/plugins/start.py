@@ -151,6 +151,8 @@ async def my_files(bot: Client, message: Message):
 
 @FileStream.on_message(filters.command('stats') & filters.private)
 async def check_server_status(bot, message: Message):
+    
+    info_msg = await message.reply_text("**Fetching Info, Please Wait...**")
     # RAM usage
     ram = psutil.virtual_memory()
     total_ram = round(ram.total / (1024 ** 3), 2)  # Convert to GB
@@ -177,7 +179,7 @@ async def check_server_status(bot, message: Message):
         download_speed = upload_speed = ping = "Error"
 
     # Format the response
-    response = (
+    stats_info = (
         f"**Server Status:**\n\n"
         f"**RAM Usage:** {used_ram}/{total_ram} GB ({ram_percent}%)\n"
         f"**Storage Usage:** {used_disk}/{total_disk} GB ({disk_percent}%)\n"
@@ -188,4 +190,4 @@ async def check_server_status(bot, message: Message):
     )
 
     # Send the response
-    await message.reply_text(response)
+    await info_msg.edit_text(stats_info)
